@@ -5,7 +5,7 @@
     :fullscreen="dialogProps.fullscreen"
     :max-height="dialogProps.maxHeight"
     :cancel-dialog="cancelDialog"
-    width="45%"
+    width="50%"
   >
     <div :style="'width: calc(100% - ' + dialogProps.labelWidth! / 2 + 'px)'">
       <el-form
@@ -17,18 +17,33 @@
         :disabled="dialogProps.isView"
         :hide-required-asterisk="dialogProps.isView"
       >
-        <el-form-item label="部门名称" prop="name">
-          <el-input v-model="dialogProps.row!.name" placeholder="请填写部门名称" clearable maxlength="50" show-word-limit></el-input>
+        <el-form-item label="线索名称" prop="name">
+          <el-input v-model="dialogProps.row!.name" placeholder="请填写线索名称" clearable maxlength="50" show-word-limit :readonly="true"></el-input>
         </el-form-item>
-        <el-form-item label="父级部门" prop="parentId" v-if="dialogProps.row.level !== 1">
-          <el-cascader
-            v-model="dialogProps.row!.parentId"
-            :props="{ value: 'id', label: 'name', emitPath: false, checkStrictly: true }"
-            placeholder="请选择父级部门"
-            :options="departmentList"
-            :show-all-levels="false"
-            filterable
+        <el-form-item label="线索手机号" prop="phone">
+          <el-input v-model="dialogProps.row!.phone" placeholder="请填写线索手机号" clearable maxlength="11" show-word-limit :readonly="true"></el-input>
+        </el-form-item>
+        <el-form-item label="线索等级" prop="level">
+          <el-select v-model="dialogProps.row!.level" filterable placeholder="请选择线索等级" class="w-full" :disabled="true">
+            <el-option v-for="item in Object.values(CustomerLevelList)" :key="item.value" :label="item.label" :value="item.value" class="isabel-option" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="跟进方式" prop="followType">
+          <el-select v-model="dialogProps.row!.followType" filterable placeholder="请选择跟进方式" class="w-full">
+            <el-option v-for="item in Object.values(FollowUpMethodList)" :key="item.value" :label="item.label" :value="item.value" class="isabel-option" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="下次跟进时间" prop="nextFollowType">
+          <el-date-picker
+            v-model="dialogProps.row.nextFollowType"
+            type="datetime"
+            :placeholder="`请选择下次跟进时间`"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            :disabled-date="(time) => time.getTime() < Date.now() - 8.64e7"
           />
+        </el-form-item>
+        <el-form-item label="跟进内容" prop="content">
+          <el-input v-model="dialogProps.row!.content" clearable type="textarea" maxlength="100" show-word-limit></el-input>
         </el-form-item>
       </el-form>
     </div>
@@ -45,7 +60,7 @@
 import { ref, reactive } from 'vue'
 import { ElMessage, FormInstance } from 'element-plus'
 import { Dialog } from '@/components/Dialog'
-import { DepartmentApi } from '@/api/modules/department'
+import { CustomerLevelList, FollowUpMethodList } from '@/configs/enum'
 interface DialogProps {
   title: string
   isView: boolean
@@ -57,7 +72,6 @@ interface DialogProps {
   getTableList?: () => Promise<any>
 }
 const dialogVisible = ref(false)
-const departmentList = ref<Array<any>>([])
 const dialogProps = ref<DialogProps>({
   isView: false,
   title: '',
@@ -71,25 +85,18 @@ const dialogProps = ref<DialogProps>({
 const acceptParams = (params: DialogProps): void => {
   params.row = { ...dialogProps.value.row, ...params.row }
   dialogProps.value = { ...dialogProps.value, ...params }
-  getDepartmentList()
   dialogVisible.value = true
-}
-
-const getDepartmentList = async () => {
-  try {
-    const res = await DepartmentApi.list({})
-    departmentList.value = Array.isArray(res.data) ? res.data : []
-  } catch (error) {
-    ElMessage.error('获取部门列表失败')
-  }
 }
 
 defineExpose({
   acceptParams
 })
 const rules = reactive({
-  name: [{ required: true, message: '请输入部门名称', trigger: 'blur' }]
+  followType: [{ required: true, message: '跟进方式不能为空', trigger: 'blur' }],
+  nextFollowType: [{ required: true, message: '下次跟进时间不能为空', trigger: 'blur' }],
+  content: [{ required: true, message: '跟进内容不能为空', trigger: 'blur' }]
 })
+
 const ruleFormRef = ref<FormInstance>()
 
 const handleSubmit = () => {
@@ -103,7 +110,6 @@ const handleSubmit = () => {
       dialogProps.value.getTableList!()
       dialogVisible.value = false
       ruleFormRef.value!.resetFields()
-      getDepartmentList()
       cancelDialog(true)
     } catch (error) {
       console.log(error)

@@ -75,6 +75,9 @@ const dataCallback = (data: any) => {
     total: data.total
   }
 }
+defineExpose({
+  proTable
+})
 
 // 表格列配置（仅保留需求字段：商品名称、价格、销量、库存、状态、操作）
 const columns: ColumnProps[] = [
