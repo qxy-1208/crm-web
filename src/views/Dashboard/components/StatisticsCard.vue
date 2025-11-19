@@ -1,10 +1,11 @@
+<!-- src/views/Dashboard/components/StatisticsCard.vue -->
 <template>
-  <el-card :style="{ backgroundColor: color + '10', borderLeft: `4px solid ${color}` }" class="statistics-card">
+  <el-card :style="{ backgroundColor: color + '10', borderLeft: `4px solid ${color}`, flex: '1', minWidth: '240px' }">
     <div class="card-content">
       <div class="card-header">
         <span class="card-title">{{ title }}</span>
         <el-icon :style="{ color }" class="card-icon">
-          <component :is="iconComponent" />
+          <component :is="icon" />
         </el-icon>
       </div>
       <div class="card-value">{{ value }}</div>
@@ -23,13 +24,10 @@
 </template>
 
 <script setup lang="ts">
-// 修复图标导入路径（Element Plus 2.3.0+ 版本的正确导入方式）
 import { CaretTop, CaretBottom } from '@element-plus/icons-vue'
-import { User, Search, Document, Money } from '@element-plus/icons-vue'
-import { computed } from 'vue'
+import { User, Search, Document, Money, Check, Close } from '@element-plus/icons-vue'
 
-// 定义props并使用
-const props = defineProps({
+const _props = defineProps({
   title: {
     type: String,
     required: true
@@ -44,11 +42,7 @@ const props = defineProps({
   },
   icon: {
     type: String,
-    required: true,
-    validator: (value: string) => {
-      // 验证传入的图标是否在允许的列表中
-      return ['User', 'Search', 'Document', 'Money'].includes(value)
-    }
+    required: true
   },
   color: {
     type: String,
@@ -60,16 +54,15 @@ const props = defineProps({
   }
 })
 
-// 根据传入的icon名称获取对应的组件（修复未使用components的问题）
-const iconComponent = computed(() => {
-  const iconMap = {
-    User,
-    Search,
-    Document,
-    Money
-  }
-  return iconMap[props.icon as keyof typeof iconMap]
-})
+// 注册图标组件
+const _components = {
+  User,
+  Search,
+  Document,
+  Money,
+  Check,
+  Close
+}
 </script>
 
 <style scoped>
@@ -114,7 +107,7 @@ const iconComponent = computed(() => {
 }
 
 .flat {
-  color: #c6c866;
+  color: #9c8686;
 }
 
 .change-desc {

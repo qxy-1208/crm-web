@@ -9,18 +9,18 @@ export interface ResultData<T = any> extends Result {
   data: T
 }
 
-// * 分页响应参数（统一参数名为pageNum/pageSize，与后端匹配）
+// * 分页响应参数
 export interface ResPage<T> {
   list: T[]
-  pageNum: number // 原page -> 改为pageNum
-  pageSize: number // 原limit -> 改为pageSize
+  page: number
+  limit: number
   total: number
 }
 
-// * 分页请求参数（统一参数名）
+// * 分页请求参数
 export interface ReqPage {
-  pageNum: number // 原page -> 改为pageNum
-  pageSize: number // 原limit -> 改为pageSize
+  page: number
+  limit: number
 }
 
 // * 登录模块
@@ -81,7 +81,10 @@ export namespace SysRole {
 
 // * 菜单模块
 export namespace SysMenu {
-  // 移除重复的ReqLoginForm（与Login模块冲突）
+  export interface ReqLoginForm {
+    account: string
+    password: string
+  }
   export interface ResMenuList {
     title: string
     id: number
@@ -117,7 +120,7 @@ export namespace Forum {
 
 // * 操作日志模块
 export namespace SysOperLog {
-  // 日志查询参数（继承修正后的ReqPage）
+  // 日志查询参数
   export interface ReqOperLogParams extends ReqPage {
     operName?: string
     operType?: number
@@ -145,13 +148,12 @@ export namespace SysOperLog {
   }
 }
 
-// * 客户统计模块（将TradeArray移出SysOperLog，作为全局类型）
 export interface TradeArray {
   timeList: string[]
-  countList?: number[] // 移除可选符，确保必须有该字段
+  countList: number[]
 }
+// src/api/interface/index.ts (补充以下内容)
 
-// src/api/interface/index.ts（补充以下内容）
 export interface DashboardStatistics {
   newCustomerCount: number
   customerChange: number
@@ -161,6 +163,10 @@ export interface DashboardStatistics {
   contractChange: number
   contractAmount: number
   amountChange: number
+  todayApprovedCount: number
+  // 今日审核通过
+  todayRejectedCount: number
+  // 今日审核拒绝
 }
 
 export interface DashboardTrend {

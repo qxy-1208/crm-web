@@ -14,6 +14,10 @@ export interface DashboardStatistics {
   contractChange: number
   contractAmount: number
   amountChange: number
+  todayApprovedContractCount: number
+  approvedContractChange: number
+  todayRejectedContractCount: number
+  rejectedContractChange: number
 }
 
 export interface DashboardTrend {
@@ -21,6 +25,9 @@ export interface DashboardTrend {
   customerData: number[]
   leadData: number[]
   contractData: number[]
+  // 新增审核趋势数据
+  approvedData: number[]
+  rejectedData: number[]
 }
 
 export interface DashboardResponse {
@@ -34,7 +41,7 @@ export interface DashboardResponse {
 export const DashboardApi = {
   // 获取仪表盘统计数据，补充返回类型定义
   getDashboardData: (): Promise<{ data: DashboardResponse }> => http.post(COMMON_ADMIN_API + '/dashboard/getStatistics'),
-  // 新增: 带时间范围参数的方法
+  // 新增：带时间范围参数的方法
   getDashboardDataByDate: (startDate: string, endDate: string): Promise<{ data: DashboardResponse }> =>
     http.post(COMMON_ADMIN_API + '/dashboard/getStatistics', { startDate, endDate })
 }
